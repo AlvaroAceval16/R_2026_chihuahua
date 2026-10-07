@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { Ollama } from '@langchain/community/llms/ollama';
+import { Ollama } from '@langchain/ollama';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { StructuredOutputParser } from '@langchain/core/output_parsers';
 import { z } from 'zod';
@@ -12,23 +12,23 @@ app.use(cors());
 // 1. Configurar Llama 3.1 local en modo JSON
 const llm = new Ollama({
   baseUrl: "http://localhost:11434",
-  model: "llama3.1",
-  temperature: 0.1, // Baja temperatura para respuestas lógicas y predecibles
+  model: "llama3.1:8b", // El nombre exacto que tienes instalado
+  temperature: 0.1,
   format: "json",
 });
 
-// 2. Definir el esquema Zod (Incluyendo el lenguaje natural)
+// 2. Definir el esquema Zod (Aceptando acentos para evitar crasheos)
 const parser = StructuredOutputParser.fromZodSchema(
   z.object({
-    severidad: z.enum(["bajo", "medio", "alto", "critico"]),
+    severidad: z.enum(["bajo", "medio", "alto", "critico", "crítico"]), // Añadimos la opción con tilde
     componente_afectado: z.string().describe("Ej: balero_frontal, eje_motor. Útil para el Gemelo Digital 3D"),
     diagnostico_tecnico: z.string().describe("Causa raíz técnica estructurada"),
-    conclusion_natural: z.string().describe("Explicación conversacional, urgente y directa para el operador en español. Ej: '¡Atención! El motor presenta una vibración atípica.'"),
+    conclusion_natural: z.string().describe("Explicación conversacional, urgente y directa para el operador en español."),
     accion_inmediata: z.string().describe("Instrucción clara de lo que debe hacer el operador a continuación")
   })
 );
 
-// 3. Plantilla del Prompt optimizada para Llama 3.1
+// 3. Plantilla del Prompt ultra-estricta
 const prompt = new PromptTemplate({
   template: `Eres el sistema de inteligencia del proyecto 'RetroFit 4.0', analizando maquinaria industrial.
   Se ha detectado una anomalía en la máquina {machineId}.
@@ -37,7 +37,10 @@ const prompt = new PromptTemplate({
   - Corriente: {current} Amp (Umbral normal: < 12.0 Amp)
   - Temperatura: {temperature} °C (Umbral normal: < 65 °C)
   
-  Evalúa estos datos y genera un diagnóstico preciso en español.
+  REGLAS ESTRICTAS:
+  1. Evalúa los datos y genera un diagnóstico en español.
+  2. RESPONDE ÚNICA Y EXCLUSIVAMENTE con los valores solicitados. NO incluyas propiedades de "$schema" ni repitas el esquema en tu respuesta.
+  
   \n{format_instructions}`,
   inputVariables: ["machineId", "vibration", "current", "temperature"],
   partialVariables: { format_instructions: parser.getFormatInstructions() },
@@ -46,7 +49,6 @@ const prompt = new PromptTemplate({
 // 4. Endpoint Principal
 app.post('/api/analizar', async (req, res) => {
   try {
-    // Recibimos los datos físicos del Arduino/Raspberry
     const { machineId, vibration, current, temperature } = req.body;
     console.log(`[⚡ TRIGGER] Analizando ${machineId} | V: ${vibration} | C: ${current} | T: ${temperature}`);
     
@@ -56,8 +58,6 @@ app.post('/api/analizar', async (req, res) => {
     const ai_insight = await parser.parse(response);
 
     // 5. ENSAMBLAJE DEL MAESTRO JSON PARA EL DASHBOARD
-    // Aquí juntamos la telemetría real con métricas Lean calculadas/simuladas
-    // y la conclusión de la IA, todo en un solo paquete.
     const dashboardPayload = {
       machineId: machineId,
       timestamp: new Date().toISOString(),
@@ -67,19 +67,19 @@ app.post('/api/analizar', async (req, res) => {
         temperature_c: temperature
       },
       oee: {
-        availability: ai_insight.severidad === 'critico' ? 60 : 92, // Baja si es crítico
+        availability: (ai_insight.severidad === 'critico' || ai_insight.severidad === 'crítico') ? 60 : 92,
         performance: 75,
         quality: 98
       },
       lean_mudas: {
-        defectos: ai_insight.severidad === 'alto' ? 3 : 0,
+        defectos: (ai_insight.severidad === 'alto') ? 3 : 0,
         sobreprocesamiento: 15,
         esperas: 10
       },
-      ai_insight: ai_insight // Inyectamos el JSON de Llama 3.1 directamente aquí
+      ai_insight: ai_insight 
     };
 
-    console.log("Payload enviado al frontend:", JSON.stringify(dashboardPayload, null, 2));
+    console.log("Payload limpio enviado al frontend:\n", JSON.stringify(dashboardPayload, null, 2));
     res.status(200).json(dashboardPayload);
 
   } catch (error) {
@@ -90,5 +90,5 @@ app.post('/api/analizar', async (req, res) => {
 
 const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`🤖 Agente RetroFit 4.0 corriendo con Llama 3.1 en http://localhost:${PORT}`);
+  console.log(`🤖 Agente RetroFit 4.0 corriendo en http://localhost:${PORT}`);
 });
