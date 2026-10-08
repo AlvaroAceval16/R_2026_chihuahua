@@ -311,6 +311,7 @@ export default function MotorModel({ activeComponent, severity }: MotorModelProp
     }
   }, [alertHex, paintBearing, paintBornes, paintFan, paintWholeMotor, rig]);
 
+  /* eslint-disable react-hooks/immutability -- three.js exige mutación imperativa de la cámara y la escena */
   useLayoutEffect(() => {
     const { span } = rig;
     const distance = span * 1.7;
@@ -323,6 +324,7 @@ export default function MotorModel({ activeComponent, severity }: MotorModelProp
     }
     glScene.fog = new THREE.Fog("#000000", span * 1.8, span * 7);
   }, [camera, glScene, rig]);
+  /* eslint-enable react-hooks/immutability */
 
   useEffect(() => {
     const { root, materials, ownedGeometries } = rig;
@@ -340,6 +342,7 @@ export default function MotorModel({ activeComponent, severity }: MotorModelProp
 
   useFrame((_, delta) => {
     for (const material of rig.materials) {
+      // eslint-disable-next-line react-hooks/immutability -- los uniforms de three.js se actualizan por referencia
       material.uniforms.uTime.value += delta;
     }
   });

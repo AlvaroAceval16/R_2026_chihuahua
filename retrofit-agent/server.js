@@ -1,12 +1,48 @@
 import express from 'express';
 import cors from 'cors';
 import http from 'http';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { DatabaseSync } from 'node:sqlite';
 import { Server } from 'socket.io';
 import mqtt from 'mqtt';
 import { Ollama } from '@langchain/ollama';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { StructuredOutputParser } from '@langchain/core/output_parsers';
 import { z } from 'zod';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// ── Base SQLite compartida con el frontend (frontend/../data/demo.db) ──
+// En modo WAL para que Next.js y este proceso escriban sin bloquearse.
+const DB_PATH = path.join(__dirname, '..', 'data', 'demo.db');
+const db = new DatabaseSync(DB_PATH);
+db.exec('PRAGMA journal_mode = WAL;');
+db.exec('PRAGMA busy_timeout = 5000;');
+db.exec(`
+  CREATE TABLE IF NOT EXISTS machines (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nfc_id TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    location TEXT,
+    status TEXT NOT NULL DEFAULT 'operativa',
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS ai_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    machine_id INTEGER REFERENCES machines(id) ON DELETE SET NULL,
+    machine_ref TEXT,
+    severity TEXT NOT NULL,
+    affected_component TEXT,
+    technical_diagnosis TEXT,
+    natural_conclusion TEXT,
+    immediate_action TEXT,
+    raw_payload TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+`);
+console.log(`🗄️  Base de datos lista (${DB_PATH})`);
 
 const app = express();
 app.use(cors());
