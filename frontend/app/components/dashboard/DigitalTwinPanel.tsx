@@ -1,9 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import MotorViewerClient from "@/app/components/digital-twin/motorViewerClient";
 import { MachineData } from "@/types/machine";
-import { Cpu, AlertCircle } from "lucide-react";
 
 interface DigitalTwinPanelProps {
   status: MachineData["ai_insight"]["severidad"];
@@ -18,59 +16,24 @@ const componentLabels: Record<string, string> = {
 
 export default function DigitalTwinPanel({ status, component }: DigitalTwinPanelProps) {
   return (
-    <Card className="flex flex-col">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-1.5">
-          <Cpu className="h-3.5 w-3.5" />
+    <section>
+      <div className="mb-2 flex items-baseline justify-between gap-3">
+        <h2 className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
           Gemelo digital
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-1 flex-col gap-3">
-        {/* Controls hint */}
-        <div className="flex items-center gap-3 text-[11px] text-slate-400">
-          <span className="flex items-center gap-1">
-            <kbd className="rounded border border-slate-200 bg-slate-50 px-1 py-0.5 font-mono text-[10px]">
-              Arrastrar
-            </kbd>
-            Rotar
-          </span>
-          <span className="flex items-center gap-1">
-            <kbd className="rounded border border-slate-200 bg-slate-50 px-1 py-0.5 font-mono text-[10px]">
-              Scroll
-            </kbd>
-            Zoom
-          </span>
-          <span className="flex items-center gap-1">
-            <kbd className="rounded border border-slate-200 bg-slate-50 px-1 py-0.5 font-mono text-[10px]">
-              Clic der.
-            </kbd>
-            Pan
-          </span>
+        </h2>
+        <p className="text-[11px] text-slate-400">Arrastrar rota · scroll zoom · clic derecho desplaza</p>
+      </div>
+      <div className="h-[min(52vh,420px)] min-h-[280px] overflow-hidden bg-black">
+        <MotorViewerClient status={status} component={component} />
+      </div>
+      {component && (
+        <div className="mt-2 flex items-baseline justify-between gap-3 border-b border-slate-200 pb-2">
+          <p className="text-[11px] uppercase tracking-[0.14em] text-slate-400">Componente afectado</p>
+          <p className="text-sm font-semibold text-slate-900">
+            {componentLabels[component] ?? component}
+          </p>
         </div>
-
-        {/* 3D Canvas */}
-        <div className="relative overflow-hidden rounded-md bg-slate-50" style={{ minHeight: "340px" }}>
-          <MotorViewerClient status={status} component={component} />
-        </div>
-
-        {/* Affected component indicator */}
-        {component && (
-          <div className="flex items-center gap-3 rounded-md border border-slate-200 bg-white p-3">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                Componente afectado
-              </p>
-              <p className="mt-0.5 text-sm font-semibold text-slate-900">
-                {componentLabels[component] ?? component}
-              </p>
-            </div>
-            <div className="ml-auto flex items-center gap-1.5 text-xs font-medium text-red-600">
-              <AlertCircle className="h-3.5 w-3.5" />
-              Componente con anomalía
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      )}
+    </section>
   );
 }

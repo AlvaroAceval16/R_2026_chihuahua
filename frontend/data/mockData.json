@@ -1,26 +1,54 @@
-{
-  "machineId": "Motor-01",
-  "timestamp": "2026-10-07T20:33:24.875Z",
-  "telemetry": {
-    "vibration_g": 5.1,
-    "current_amp": 18.5,
-    "temperature_c": 82.3
+[
+  {
+    "machineId": "Motor-01",
+    "timestamp": "2026-10-07T20:33:24.875Z",
+    "telemetry": {
+      "vibration_g": 5.1,
+      "current_amp": 18.5,
+      "temperature_c": 82.3
+    },
+    "oee": {
+      "availability": 60,
+      "performance": 75,
+      "quality": 98
+    },
+    "lean_mudas": {
+      "defectos": 0,
+      "sobreprocesamiento": 15,
+      "esperas": 10
+    },
+    "ai_insight": {
+      "severidad": "crítico",
+      "componente_afectado": "carcasa",
+      "diagnostico_tecnico": "Anomalía en el motor debido a sobrecarga de trabajo, posible causa: desgaste de piezas internas o ajustes incorrectos de la herramienta de corte.",
+      "conclusion_natural": "El motor está funcionando con parámetros anormales, lo que puede provocar daños en la máquina y afectar la calidad del producto. Es necesario realizar una inspección y ajustes urgentes para evitar un accidente o daño mayor.",
+      "accion_inmediata": "Paralizar la producción y realizar una inspección detallada del motor, ajustar la herramienta de corte y realizar pruebas de funcionamiento antes de reiniciar la producción."
+    }
   },
-  "oee": {
-    "availability": 60,
-    "performance": 75,
-    "quality": 98
-  },
-  "lean_mudas": {
-    "defectos": 0,
-    "sobreprocesamiento": 15,
-    "esperas": 10
-  },
-  "ai_insight": {
-    "severidad": "crítico",
-    "componente_afectado": "carcasa",
-    "diagnostico_tecnico": "Anomalía en el motor debido a sobrecarga de trabajo, posible causa: desgaste de piezas internas o ajustes incorrectos de la herramienta de corte.",
-    "conclusion_natural": "El motor está funcionando con parámetros anormales, lo que puede provocar daños en la máquina y afectar la calidad del producto. Es necesario realizar una inspección y ajustes urgentes para evitar un accidente o daño mayor.",
-    "accion_inmediata": "Paralizar la producción y realizar una inspección detallada del motor, ajustar la herramienta de corte y realizar pruebas de funcionamiento antes de reiniciar la producción."
+  {
+    "machineId": "Motor-02",
+    "timestamp": "2026-10-07T20:33:24.875Z",
+    "telemetry": {
+      "vibration_g": 3.4,
+      "current_amp": 14.8,
+      "temperature_c": 68.1
+    },
+    "oee": {
+      "availability": 88,
+      "performance": 81,
+      "quality": 96
+    },
+    "lean_mudas": {
+      "defectos": 2,
+      "sobreprocesamiento": 6,
+      "esperas": 4
+    },
+    "ai_insight": {
+      "severidad": "advertencia",
+      "componente_afectado": "ventilador",
+      "diagnostico_tecnico": "El ventilador muestra desbalance leve. La vibración sube con la carga y la corriente se acerca al umbral de advertencia.",
+      "conclusion_natural": "El motor sigue en marcha, pero el ventilador pide revisión antes del siguiente turno para evitar que el desbalance pase a la carcasa.",
+      "accion_inmediata": "Programar limpieza y balanceo del ventilador al cierre del turno. No detener la línea si la vibración se mantiene bajo 4.5 g."
+    }
   }
-}
+]

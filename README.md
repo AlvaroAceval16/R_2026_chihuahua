@@ -20,7 +20,9 @@ registro de **logs** (mantenimientos + diagnósticos de IA).
 
 - **Roles**: `supervisor` (ve datos de la máquina) y `mantenimiento`
   (registra mantenimientos). Sin sesión válida → acceso denegado.
-- **Login sin contraseña** (demo): basta el username (`supervisor` o `mantenimiento`).
+- **Entrada sin contraseña** (demo): en `/login` solo se elige el rol
+  (`supervisor` o `mantenimiento`); no hay usuario ni password. La API de login
+  recibe igual `{username}` con el rol elegido.
 - **Máquinas** (catálogo en BD): `motor-01`, `cnc-01`, `compresor-01`.
 - **Logs**: `maintenance_logs` (creados por mantenimiento) y `ai_logs`
   (escritos por retrofit-agent por cada diagnóstico de la IA).
@@ -45,7 +47,7 @@ Compartir: abrir `http://<IP-de-tu-PC-en-la-red>:3000` desde otro equipo.
 (Usa `ipconfig` para conocer la IP; el QR del login ayuda a abrirla en el celular.)
 
 ### Uso
-1. Abrir `/` → seleccionar una máquina (equivale a escanear el chip NFC).
+1. Abrir `/` → dashboard de la planta (o escanear el chip NFC para ir directo a `/m/<máquina>`).
 2. Sin sesión te redirige a `/login` (elige `supervisor` o `mantenimiento`).
 3. `supervisor` → pantalla de panel; `mantenimiento` → pantalla de registro.
 4. La pantalla de logs muestra los históricos de mantenimiento y de IA.

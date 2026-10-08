@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,20 +12,24 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
-  title: "RetroFit AI — Centro de Monitoreo Industrial",
-  description:
-    "Sistema de monitoreo y diagnóstico de maquinaria industrial en tiempo real, potenciado por inteligencia artificial.",
-  keywords: ["monitoreo industrial", "SCADA", "gemelo digital", "IA", "OEE", "mantenimiento predictivo"],
+  title: "RetroFit — Centro de monitoreo industrial",
+  description: "Monitoreo de motores industriales con gemelo digital, telemetría y eficiencia.",
+  keywords: ["monitoreo industrial", "gemelo digital", "OEE", "mantenimiento"],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#f4f6f8]">{children}</body>
+      <body className="min-h-full bg-black">{children}</body>
     </html>
   );
 }

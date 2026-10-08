@@ -53,5 +53,14 @@ async function currentUser(request: NextRequest): Promise<SessionUser | null> {
 }
 
 export const config = {
-  matcher: ["/login", "/", "/prohibido", "/m/:path*", "/logs", "/api/:path*"],
+  matcher: [
+    "/login",
+    "/",
+    "/prohibido",
+    "/m/:path*",
+    "/logs",
+    "/historial",
+    "/maquinas/:path*",
+    "/api/:path*",
+  ],
 };
