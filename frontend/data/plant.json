@@ -14,9 +14,10 @@
     },
     "ai_insight": {
       "severidad": "critico",
-      "componente_afectado": "Carcasa",
-      "diagnostico_tecnico": "Sobrecarga detectada en el husillo. La vibración supera el umbral de operación y la corriente se mantiene alta.",
-      "accion_inmediata": "Detener el husillo."
+      "componente_afectado": "Eje Central",
+      "diagnostico_tecnico": "Fricción anómala detectada en el rodamiento superior debido a desalineación mecánica.",
+      "conclusion_natural": "El motor está experimentando un impacto severo y rozamiento interno crítico. Riesgo inminente de fractura en el eje central.",
+      "accion_inmediata": "Desenergizar inmediatamente el husillo principal y solicitar revisión mecánica."
     }
   },
   {
@@ -36,6 +37,7 @@
       "severidad": "advertencia",
       "componente_afectado": "Ventilador",
       "diagnostico_tecnico": "El ventilador muestra desbalance leve. La temperatura sube con la carga, todavía por debajo del límite crítico.",
+      "conclusion_natural": "El motor sigue en marcha, pero el ventilador pide revisión antes del siguiente turno para que el desbalance no pase a la carcasa.",
       "accion_inmediata": "Programar limpieza del ventilador al cierre del turno."
     }
   },
@@ -56,6 +58,7 @@
       "severidad": "normal",
       "componente_afectado": "Ninguno",
       "diagnostico_tecnico": "Los sensores se mantienen dentro de los umbrales de operación. No hay desviación que requiera intervención.",
+      "conclusion_natural": "La máquina opera dentro de lo esperado. No hay señal de desgaste que justifique una parada.",
       "accion_inmediata": "Continuar el ciclo y registrar la lectura."
     }
   }

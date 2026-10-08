@@ -23,7 +23,7 @@ export default function DigitalTwinPanel({ status, component }: DigitalTwinPanel
         </h2>
         <p className="text-[11px] text-slate-400">Arrastrar rota · scroll zoom · clic derecho desplaza</p>
       </div>
-      <div className="overflow-hidden bg-[#05080f]" style={{ minHeight: "340px" }}>
+      <div className="h-[min(52vh,420px)] min-h-[280px] overflow-hidden bg-black">
         <MotorViewerClient status={status} component={component} />
       </div>
       {component && (

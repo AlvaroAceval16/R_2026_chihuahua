@@ -17,6 +17,7 @@ export interface PlantMachine {
     severidad: PlantSeverity;
     componente_afectado: string;
     diagnostico_tecnico: string;
+    conclusion_natural: string;
     accion_inmediata: string;
   };
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Grid, useGLTF } from "@react-three/drei";
+import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
 interface MotorModelProps {
@@ -131,7 +131,7 @@ export default function MotorModel({ status, component }: MotorModelProps) {
       camera.far = span * 24;
       camera.updateProjectionMatrix();
     }
-    glScene.fog = new THREE.Fog("#05080f", span * 1.8, span * 7);
+    glScene.fog = new THREE.Fog("#000000", span * 1.8, span * 7);
   }, [camera, glScene, rig]);
 
   useEffect(() => {
@@ -158,27 +158,7 @@ export default function MotorModel({ status, component }: MotorModelProps) {
     }
   });
 
-  const floor = -rig.size.y / 2;
-  const cell = rig.span * 0.12;
-
-  return (
-    <group>
-      <primitive object={rig.root} />
-      <Grid
-        position={[0, floor - rig.span * 0.02, 0]}
-        args={[rig.span * 6, rig.span * 6]}
-        cellSize={cell}
-        cellThickness={0.6}
-        cellColor="#14506a"
-        sectionSize={cell * 4}
-        sectionThickness={1.1}
-        sectionColor="#3ecfff"
-        fadeDistance={rig.span * 5}
-        fadeStrength={1.4}
-        infiniteGrid
-      />
-    </group>
-  );
+  return <primitive object={rig.root} />;
 }
 
 useGLTF.preload("/models/electric_motor.glb");
