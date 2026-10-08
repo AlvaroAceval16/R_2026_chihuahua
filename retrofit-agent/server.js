@@ -44,6 +44,40 @@ db.exec(`
 `);
 console.log(`🗄️  Base de datos lista (${DB_PATH})`);
 
+// machineId del agente (plant.json) → nfc_id del catálogo compartido.
+const PLANT_TO_NFC = {
+  "CNC-01": "cnc-01",
+  "CNC-02": "motor-01",
+  "CNC-03": "compresor-01",
+};
+
+function saveDiagnosis(machineId, aiInsight, payload) {
+  try {
+    const nfcId = PLANT_TO_NFC[machineId] || machineId;
+    const machineRow = db
+      .prepare("SELECT id FROM machines WHERE lower(nfc_id) = lower(?)")
+      .get(nfcId);
+    db.prepare(`
+      INSERT INTO ai_logs
+        (machine_id, machine_ref, severity, affected_component,
+         technical_diagnosis, natural_conclusion, immediate_action, raw_payload)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      machineRow ? machineRow.id : null,
+      machineId,
+      aiInsight.severidad,
+      aiInsight.componente_afectado ?? null,
+      aiInsight.diagnostico_tecnico ?? null,
+      aiInsight.conclusion_natural ?? null,
+      aiInsight.accion_inmediata ?? null,
+      JSON.stringify(payload)
+    );
+    console.log(`💾 Diagnóstico ${aiInsight.severidad} de ${machineId} guardado en ai_logs`);
+  } catch (dbError) {
+    console.error("Error guardando ai_log:", dbError.message);
+  }
+}
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -242,7 +276,7 @@ mqttClient.on('message', async (topic, message) => {
       if (alertLevel === "advertencia") ai_insight.severidad = "advertencia";
       else ai_insight.severidad = "critico";
 
-      io.emit('alerta_critica', {
+      const payload = {
         machineId,
         timestamp: new Date().toISOString(),
         telemetry,
@@ -252,7 +286,9 @@ mqttClient.on('message', async (topic, message) => {
           quality: 98
         },
         ai_insight
-      });
+      };
+      io.emit('alerta_critica', payload);
+      saveDiagnosis(machineId, ai_insight, payload);
       console.log(`🚀 [ALERTA_CRITICA] ${alertLevel} enviada al frontend para ${machineId}.`);
     } catch (aiError) {
       console.error(`❌ Error crítico en la IA tras ${((Date.now() - startTime) / 1000).toFixed(2)}s:`, aiError.message);
