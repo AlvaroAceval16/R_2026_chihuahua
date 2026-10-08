@@ -1,12 +1,48 @@
 import express from 'express';
 import cors from 'cors';
 import http from 'http';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { DatabaseSync } from 'node:sqlite';
 import { Server } from 'socket.io';
 import mqtt from 'mqtt';
 import { Ollama } from '@langchain/ollama';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { StructuredOutputParser } from '@langchain/core/output_parsers';
 import { z } from 'zod';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// ── Base SQLite compartida con el frontend (frontend/../data/demo.db) ──
+// En modo WAL para que Next.js y este proceso escriban sin bloquearse.
+const DB_PATH = path.join(__dirname, '..', 'data', 'demo.db');
+const db = new DatabaseSync(DB_PATH);
+db.exec('PRAGMA journal_mode = WAL;');
+db.exec('PRAGMA busy_timeout = 5000;');
+db.exec(`
+  CREATE TABLE IF NOT EXISTS machines (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nfc_id TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    location TEXT,
+    status TEXT NOT NULL DEFAULT 'operativa',
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS ai_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    machine_id INTEGER REFERENCES machines(id) ON DELETE SET NULL,
+    machine_ref TEXT,
+    severity TEXT NOT NULL,
+    affected_component TEXT,
+    technical_diagnosis TEXT,
+    natural_conclusion TEXT,
+    immediate_action TEXT,
+    raw_payload TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+`);
+console.log(`🗄️  Base de datos lista (${DB_PATH})`);
 
 const app = express();
 app.use(cors());
@@ -89,6 +125,29 @@ mqttClient.on('message', async (topic, message) => {
           ai_insight
         };
 
+        // ── Persistir el diagnóstico en el histórico (ai_logs) ──
+        try {
+          const machineRow = db.prepare('SELECT id, name FROM machines WHERE nfc_id = ?').get(machineId);
+          db.prepare(`
+            INSERT INTO ai_logs
+              (machine_id, machine_ref, severity, affected_component,
+               technical_diagnosis, natural_conclusion, immediate_action, raw_payload)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          `).run(
+            machineRow ? machineRow.id : null,
+            machineId,
+            ai_insight.severidad,
+            ai_insight.componente_afectado ?? null,
+            ai_insight.diagnostico_tecnico ?? null,
+            ai_insight.conclusion_natural ?? null,
+            ai_insight.accion_inmediata ?? null,
+            JSON.stringify(dashboardPayload)
+          );
+          console.log('💾 Diagnóstico guardado en ai_logs');
+        } catch (dbError) {
+          console.error('Error guardando ai_log:', dbError.message);
+        }
+
         io.emit('alerta_critica', dashboardPayload);
         
         console.log("🚀 JSON empujado al Frontend. Resultado maestro:");
@@ -107,7 +166,7 @@ mqttClient.on('message', async (topic, message) => {
   }
 });
 
-const PORT = 3000;
+const PORT = 4000;
 server.listen(PORT, () => {
   console.log(`🚀 Motor RetroFit 4.0 operativo en el puerto ${PORT}`);
 });

@@ -108,6 +108,9 @@ export default function TelemetryCharts({ telemetry }: TelemetryChartsProps) {
 
   useEffect(() => {
     const nowMs = Date.now();
+    // El historial simulado se deriva de la telemetría entrante y solo aplica
+    // en cliente (así se evita un desajuste de hidratación por huso/hora).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHistoricalData({
       vibration_g: generateHistory(telemetry.vibration_g, 20, 0.6, nowMs),
       current_amp: generateHistory(telemetry.current_amp, 20, 1.5, nowMs),
