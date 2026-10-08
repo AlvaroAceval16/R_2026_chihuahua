@@ -104,4 +104,24 @@ mqttClient.on('message', async (topic, message) => {
         // EMPUJAR DATOS AL FRONTEND AL INSTANTE
         io.emit('alerta_critica', dashboardPayload);
         
-        console.log(`🚀 JSON
+        console.log(`🚀 JSON empujado al Frontend para ${machineId}. Resultado maestro:`);
+        console.log(JSON.stringify(dashboardPayload, null, 2));
+        console.log("--------------------------------------------------");
+      } catch (aiError) {
+        console.error("Error en la inferencia de la IA:", aiError.message);
+      } finally {
+        // Apertura inmediata del candado de esta máquina al entregar conclusión
+        locks[machineId] = false;
+        console.log(`✅ IA terminó. Compuertas abiertas de nuevo para ${machineId}.`);
+      }
+    }
+  } catch (error) {
+    console.error("Error procesando mensaje MQTT o IA:", error.message);
+  }
+});
+
+// Separamos el backend en el 4000 para no chocar con Next.js (3000)
+const PORT = 4000;
+server.listen(PORT, () => {
+  console.log(`🚀 Motor RetroFit 4.0 operativo en el puerto ${PORT}`);
+});
