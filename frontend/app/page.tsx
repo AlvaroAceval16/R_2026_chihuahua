@@ -4,9 +4,14 @@ import plant from "@/data/plant.json";
 import historial from "@/data/historial.json";
 import { HistoryEntry, PlantMachine } from "@/types/machine";
 import HistoryTable from "@/app/components/plant/HistoryTable";
+import { machineLinks } from "@/app/components/plant/nav";
 import { cardClass, oeeBarClass, severityLabel, severityText } from "@/app/components/plant/status";
 
 const machines = plant as PlantMachine[];
+const listedMachines = machineLinks.flatMap((link) => {
+  const machine = machines.find((item) => item.machineId === link.machineId);
+  return machine ? [{ ...machine, label: link.label, href: link.href }] : [];
+});
 const entries = historial as HistoryEntry[];
 
 const oeeKeys = [
@@ -47,7 +52,7 @@ export default function Home() {
         </section>
 
         <div className="flex flex-col gap-4 lg:col-span-2">
-          {machines.map((machine) => {
+          {listedMachines.map((machine) => {
             const severity = machine.ai_insight.severidad;
             const critical = severity === "critico";
             return (
@@ -61,14 +66,14 @@ export default function Home() {
               >
                 <div>
                   <h2 className={`text-base font-semibold ${critical ? "text-white" : "text-slate-900"}`}>
-                    {machine.machineId}
+                    {machine.label}
                   </h2>
                   <p className={`mt-0.5 text-sm ${critical ? "text-white/90" : severityText[severity]}`}>
-                    {severityLabel[severity]}
+                    {machine.machineId} · {severityLabel[severity]}
                   </p>
                 </div>
                 <Link
-                  href={`/maquinas/${machine.machineId}`}
+                  href={machine.href}
                   className={`inline-flex items-center gap-1 text-sm ${critical ? "text-white" : "text-slate-900"}`}
                 >
                   Ver detalles

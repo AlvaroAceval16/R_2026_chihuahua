@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import PlantNav from "@/app/components/plant/PlantNav";
 import "./globals.css";
@@ -25,9 +26,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-[#f4f6f8]">
-        <PlantNav />
-        {children}
+      <body className="flex min-h-full bg-[#f4f6f8]">
+        <Suspense fallback={<aside className="w-56 shrink-0 bg-white" />}>
+          <PlantNav />
+        </Suspense>
+        <div className="min-w-0 flex-1">{children}</div>
       </body>
     </html>
   );

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import plant from "@/data/plant.json";
 import { PlantMachine, PlantSeverity } from "@/types/machine";
 import MotorViewerClient from "@/app/components/digital-twin/motorViewerClient";
+import { machineLinks } from "@/app/components/plant/nav";
 import { cardClass, severityLabel, severityText, severityWash } from "@/app/components/plant/status";
 
 const machines = plant as PlantMachine[];
@@ -46,11 +47,12 @@ async function MachineDetail({ params }: { params: Promise<{ id: string }> }) {
   }
 
   const severity = machine.ai_insight.severidad;
+  const label = machineLinks.find((link) => link.machineId === machine.machineId)?.label ?? machine.machineId;
 
   return (
-    <main className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 gap-4 px-6 pb-10 lg:grid-cols-2">
-      <section className={`${cardClass} overflow-hidden p-0`}>
-        <div className="bg-[#05080f]">
+    <main className="grid w-full flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-3 lg:p-6">
+      <section className={`${cardClass} overflow-hidden p-0 lg:col-span-2`}>
+        <div className="h-full min-h-[72vh] bg-[#05080f]">
           <MotorViewerClient
             status={toViewerStatus(severity)}
             component={toViewerComponent(machine.ai_insight.componente_afectado)}
@@ -62,15 +64,15 @@ async function MachineDetail({ params }: { params: Promise<{ id: string }> }) {
         </p>
       </section>
 
-      <section className="flex flex-col gap-4">
+      <section className="flex flex-col gap-4 lg:col-span-1">
         <header className={`${cardClass} flex items-baseline justify-between gap-4 py-5`}>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{machine.machineId}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{label}</h1>
           <p className={`text-sm font-medium ${severityText[severity]}`}>{severityLabel[severity]}</p>
         </header>
 
         <div className={cardClass}>
           <h2 className="text-sm font-medium text-slate-500">Telemetría</h2>
-          <div className="mt-5 grid grid-cols-2 gap-6 sm:grid-cols-4">
+          <div className="mt-5 grid grid-cols-2 gap-5">
             {readings.map((reading) => (
               <div key={reading.key}>
                 <p className="text-[11px] uppercase tracking-[0.14em] text-slate-400">{reading.label}</p>
