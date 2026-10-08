@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Download, Plus, Search } from "lucide-react";
+import type { AiLog } from "@/types/ai";
 
 type LogCategory = "ai" | "maintenance" | "access";
 
@@ -16,17 +17,7 @@ type ActivityLog = {
   estadoColor: string;
 };
 
-const mockLogs: ActivityLog[] = [
-  {
-    id: "LOG-001",
-    categoria: "ai",
-    maquina: "CNC-01",
-    responsable: "Agente Llama 3.1",
-    fecha: "07 Oct 2026, 14:30",
-    detalle: "Fricción anómala detectada en rodamiento. Detención sugerida.",
-    estado: "Crítico",
-    estadoColor: "text-red-400 bg-red-400/10",
-  },
+const otherLogs: ActivityLog[] = [
   {
     id: "LOG-002",
     categoria: "access",
@@ -45,16 +36,6 @@ const mockLogs: ActivityLog[] = [
     fecha: "06 Oct 2026, 09:00",
     detalle: "Cambio de aceite y lubricación de husillo principal.",
     estado: "Programado",
-    estadoColor: "text-yellow-400 bg-yellow-400/10",
-  },
-  {
-    id: "LOG-004",
-    categoria: "ai",
-    maquina: "CNC-02",
-    responsable: "Agente Llama 3.1",
-    fecha: "05 Oct 2026, 16:45",
-    detalle: "Pico de temperatura inusual. Ajuste automático de parámetros.",
-    estado: "Advertencia",
     estadoColor: "text-yellow-400 bg-yellow-400/10",
   },
   {
@@ -102,26 +83,65 @@ const tipoLabel: Record<LogCategory, string> = {
   access: "Acceso",
 };
 
-function countFor(id: (typeof filters)[number]["id"]) {
-  if (id === "all") return mockLogs.length;
-  return mockLogs.filter((log) => log.categoria === id).length;
+function formatLogDate(value: string) {
+  const iso = value.includes("T") ? value : `${value.replace(" ", "T")}Z`;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("es-MX", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }
 
-export default function HistoryTable() {
+function severityLabel(severity: string) {
+  const normalized = severity.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+  if (normalized === "critico") {
+    return { estado: "Crítico", estadoColor: "text-red-400 bg-red-400/10" };
+  }
+  if (normalized === "advertencia") {
+    return { estado: "Advertencia", estadoColor: "text-yellow-400 bg-yellow-400/10" };
+  }
+  return { estado: severity, estadoColor: "text-gray-300 bg-white/5" };
+}
+
+function toActivityLog(log: AiLog): ActivityLog {
+  const severity = severityLabel(log.severity);
+  const detalle = log.natural_conclusion || log.technical_diagnosis || "Diagnóstico sin detalle.";
+  return {
+    id: `ai-${log.id}`,
+    categoria: "ai",
+    maquina: log.machine_ref || log.machine_name || "Máquina",
+    responsable: "Agente Llama 3.1",
+    fecha: formatLogDate(log.created_at),
+    detalle,
+    estado: severity.estado,
+    estadoColor: severity.estadoColor,
+  };
+}
+
+export default function HistoryTable({ aiLogs }: { aiLogs: AiLog[] }) {
   const [activeFilter, setActiveFilter] = useState<(typeof filters)[number]["id"]>("all");
   const [query, setQuery] = useState("");
   const [onlyCnc01, setOnlyCnc01] = useState(false);
 
+  const logs = useMemo(
+    () => [...aiLogs.map(toActivityLog), ...otherLogs],
+    [aiLogs]
+  );
+
   const filteredLogs = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    return mockLogs.filter((log) => {
+    return logs.filter((log) => {
       if (activeFilter !== "all" && log.categoria !== activeFilter) return false;
       if (onlyCnc01 && log.maquina !== "CNC-01") return false;
       if (!needle) return true;
       const haystack = `${log.maquina} ${log.responsable} ${log.detalle} ${log.estado} ${tipoLabel[log.categoria]}`.toLowerCase();
       return haystack.includes(needle);
     });
-  }, [activeFilter, onlyCnc01, query]);
+  }, [activeFilter, logs, onlyCnc01, query]);
 
   function exportCsv() {
     const header = ["Tipo", "Máquina", "Responsable", "Fecha", "Detalle", "Estado"];
@@ -182,7 +202,7 @@ export default function HistoryTable() {
             >
               <p className="text-sm text-gray-400">{filter.label}</p>
               <p className={`mt-3 text-3xl font-semibold tabular-nums ${active ? "text-lime-400" : "text-white"}`}>
-                {countFor(filter.id)}
+                {filter.id === "all" ? logs.length : logs.filter((log) => log.categoria === filter.id).length}
               </p>
             </button>
           );

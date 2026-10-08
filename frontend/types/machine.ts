@@ -15,7 +15,7 @@ export type PlantSeverity = "normal" | "advertencia" | "critico";
 export interface PlantMachine {
   machineId: string;
   telemetry: {
-    vibration_raw: number;
+    vibration_raw?: number;
     current_amp: number;
     temperature_c: number;
     humidity_percent: number;

@@ -2,31 +2,30 @@
   {
     "machineId": "CNC-01",
     "telemetry": {
-      "vibration_raw": 850,
-      "current_amp": 18.5,
-      "temperature_c": 45.0,
-      "humidity_percent": 50.0
+      "vibration_raw": 210,
+      "current_amp": 12.5,
+      "temperature_c": 20.5,
+      "humidity_percent": 45.0
     },
     "oee": {
-      "availability": 60,
-      "performance": 75,
+      "availability": 94,
+      "performance": 90,
       "quality": 98
     },
     "ai_insight": {
-      "severidad": "critico",
-      "componente_afectado": "Eje Central",
-      "diagnostico_tecnico": "Fricción anómala detectada en el rodamiento superior debido a desalineación mecánica.",
-      "conclusion_natural": "El motor está experimentando un impacto severo y rozamiento interno crítico. Riesgo inminente de fractura en el eje central.",
-      "accion_inmediata": "Desenergizar inmediatamente el husillo principal y solicitar revisión mecánica."
+      "severidad": "normal",
+      "componente_afectado": "Ninguno",
+      "diagnostico_tecnico": "Vibración y temperatura dentro de banda normal. Esperando telemetría en vivo.",
+      "conclusion_natural": "CNC-01 opera estable. El agente solo hablará si la vibración cruza 500 o la temperatura 50 °C.",
+      "accion_inmediata": "Continuar el ciclo y vigilar el rodamiento lado acople."
     }
   },
   {
     "machineId": "CNC-02",
     "telemetry": {
-      "vibration_raw": 620,
-      "current_amp": 14.2,
-      "temperature_c": 61.0,
-      "humidity_percent": 47.0
+      "current_amp": 12.5,
+      "temperature_c": 21.0,
+      "humidity_percent": 67.0
     },
     "oee": {
       "availability": 88,
@@ -35,10 +34,10 @@
     },
     "ai_insight": {
       "severidad": "advertencia",
-      "componente_afectado": "Ventilador",
-      "diagnostico_tecnico": "El ventilador muestra desbalance leve. La temperatura sube con la carga, todavía por debajo del límite crítico.",
-      "conclusion_natural": "El motor sigue en marcha, pero el ventilador pide revisión antes del siguiente turno para que el desbalance no pase a la carcasa.",
-      "accion_inmediata": "Programar limpieza del ventilador al cierre del turno."
+      "componente_afectado": "bornes",
+      "diagnostico_tecnico": "Humedad en banda de advertencia (55–69 % HR). Riesgo de condensación en la caja de conexiones, todavía reversible.",
+      "conclusion_natural": "CNC-02 no está en error. Los bornes piden atención de humedad antes de cruzar 70 % HR.",
+      "accion_inmediata": "Revisar sello de la caja de bornes y ventilación del tablero. No esperar a 70 % HR."
     }
   },
   {
