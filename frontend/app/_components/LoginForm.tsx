@@ -14,11 +14,11 @@ export default function LoginForm({ next }: { next: string }) {
   // Genera un QR con la URL de la app para celulares sin NFC (iPhone).
   useEffect(() => {
     const o = window.location.origin;
-    setOrigin(o);
     import("qrcode")
-      .then(({ default: QRCode }) =>
-        QRCode.toDataURL(o, { width: 220, margin: 1 })
-      )
+      .then(({ default: QRCode }) => {
+        setOrigin(o);
+        return QRCode.toDataURL(o, { width: 220, margin: 1 });
+      })
       .then(setQr)
       .catch(() => {});
   }, []);

@@ -13,7 +13,7 @@ registro de **logs** (mantenimientos + diagnósticos de IA).
         ─ es la ÚNICA puerta compartida    │  ─ NO se comparte (interno)
         ├─ login + JWT cookie (sin pwd)    │  ├─ MQTT ← Mosquitto (topic retrofit/telemetria)
         ├─ proxy.ts (control de acceso)    │  ├─ Umbral vibración ≥ 800 → IA (Ollama)
-        ├─ /m/<id>  (panel vs mantenimiento)│  └─ Escribe cada diagnóstico en ai_logs
+        ├─ /m/<id>  (según rol → destino)    │  └─ Escribe cada diagnóstico en ai_logs
         ├─ /logs    (históricos)            │
         └─ SQLite (data/demo.db, WAL) ◄─────┘  ← BD compartida
 ```
@@ -49,7 +49,10 @@ Compartir: abrir `http://<IP-de-tu-PC-en-la-red>:3000` desde otro equipo.
 ### Uso
 1. Abrir `/` → dashboard de la planta (o escanear el chip NFC para ir directo a `/m/<máquina>`).
 2. Sin sesión te redirige a `/login` (elige `supervisor` o `mantenimiento`).
-3. `supervisor` → pantalla de panel; `mantenimiento` → pantalla de registro.
+3. `supervisor` → pantalla nueva de la planta (`/maquinas/<id>`; el chip
+   conserva su URL `/m/<nfc_id>` y se mapea: `motor-01→CNC-02`,
+   `cnc-01→CNC-01`, `compresor-01→CNC-03`); `mantenimiento` → pantalla de
+   registro.
 4. La pantalla de logs muestra los históricos de mantenimiento y de IA.
 
 ### Probar la API sin frontend

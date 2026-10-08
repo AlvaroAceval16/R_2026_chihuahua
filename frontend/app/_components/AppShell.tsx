@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import LogoutButton from "@/app/_components/LogoutButton";
 
@@ -28,12 +29,12 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
 
       <nav className="border-b border-slate-200 bg-white/60">
         <div className="mx-auto flex max-w-5xl gap-4 px-4 py-2 text-sm">
-          <a href="/" className="text-slate-600 hover:text-slate-900">
+          <Link href="/" className="text-slate-600 hover:text-slate-900">
             Máquinas
-          </a>
-          <a href="/logs" className="text-slate-600 hover:text-slate-900">
+          </Link>
+          <Link href="/logs" className="text-slate-600 hover:text-slate-900">
             Logs
-          </a>
+          </Link>
         </div>
       </nav>
 
