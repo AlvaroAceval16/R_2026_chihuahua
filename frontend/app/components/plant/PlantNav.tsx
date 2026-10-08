@@ -2,47 +2,62 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ScrollText } from "lucide-react";
 import { machineLinks } from "@/app/components/plant/nav";
 
 const links = [
-  { href: "/", label: "Inicio", icon: "home" as const },
-  ...machineLinks.map((machine, index) => ({
-    href: machine.href,
-    label: machine.label,
-    icon: "machine" as const,
-    mark: String(index + 1),
-  })),
-  { href: "/historial", label: "Análisis", icon: "analysis" as const },
+  { href: "/", label: "Overview", active: (path: string) => path === "/" },
+  { href: "/maquinas/CNC-01", label: "Máquinas", active: (path: string) => path.startsWith("/maquinas") },
 ];
+
+function itemClass(active: boolean) {
+  return active
+    ? "shrink-0 rounded-xl bg-[#CCFF00] px-3 py-2 text-sm font-medium text-black"
+    : "shrink-0 rounded-xl px-3 py-2 text-sm text-gray-400 hover:text-white";
+}
 
 export default function PlantNav() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-[76px] shrink-0 flex-col items-center rounded-[28px] bg-[#15803d] py-5 text-white">
-      <span className="mb-8 text-xs font-semibold tracking-tight">RF</span>
-      <nav className="flex flex-1 flex-col items-center gap-3">
-        {links.map((link) => {
-          const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              aria-label={link.label}
-              title={link.label}
-              className={
-                active
-                  ? "flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-[#15803d]"
-                  : "flex h-11 w-11 items-center justify-center rounded-2xl text-white/80"
-              }
-            >
-              {link.icon === "home" ? <Home className="h-5 w-5" /> : null}
-              {link.icon === "analysis" ? <ScrollText className="h-5 w-5" /> : null}
-              {link.icon === "machine" ? <span className="text-sm font-semibold">{link.mark}</span> : null}
-            </Link>
-          );
-        })}
+    <aside className="flex shrink-0 flex-col border-b border-[#333333] bg-[#1E1E1E] lg:w-60 lg:border-r lg:border-b-0">
+      <div className="px-5 py-4 lg:py-6">
+        <p className="text-lg font-semibold tracking-tight text-white">
+          RetroF
+          <span className="relative inline-block">
+            i
+            <span className="absolute left-1/2 top-[0.08em] h-[0.22em] w-[0.22em] -translate-x-1/2 rounded-full bg-[#CCFF00]" />
+          </span>
+          t
+        </p>
+      </div>
+      <nav className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-col lg:overflow-visible lg:pb-6">
+        {links.map((link) => (
+          <Link key={link.label} href={link.href} className={itemClass(link.active(pathname))}>
+            {link.label}
+          </Link>
+        ))}
+        <div className="flex gap-1 lg:flex-col lg:gap-0.5 lg:pl-3">
+          {machineLinks.map((machine) => {
+            const active = pathname === machine.href;
+            return (
+              <Link
+                key={machine.href}
+                href={machine.href}
+                className={
+                  active
+                    ? "shrink-0 rounded-lg px-3 py-1.5 text-sm text-[#CCFF00]"
+                    : "shrink-0 rounded-lg px-3 py-1.5 text-sm text-gray-500 hover:text-gray-300"
+                }
+              >
+                {machine.label}
+              </Link>
+            );
+          })}
+        </div>
+        <Link href="/historial" className={itemClass(pathname.startsWith("/historial"))}>
+          Analítica
+        </Link>
+        <span className="shrink-0 rounded-xl px-3 py-2 text-sm text-gray-500">Configuración</span>
       </nav>
     </aside>
   );

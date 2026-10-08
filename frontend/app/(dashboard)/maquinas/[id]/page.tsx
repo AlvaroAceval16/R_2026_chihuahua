@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { Clock } from "lucide-react";
 import plant from "@/data/plant.json";
 import { PlantMachine, PlantSeverity } from "@/types/machine";
 import MotorViewerClient from "@/app/components/digital-twin/motorViewerClient";
@@ -43,9 +44,13 @@ async function MachineDetail({ params }: { params: Promise<{ id: string }> }) {
   const critical = machine.ai_insight.severidad === "critico";
 
   return (
-    <main className="-m-6 grid min-h-[calc(100dvh-2rem)] grid-cols-1 rounded-[28px] bg-black text-white lg:grid-cols-12">
+    <main className="grid min-h-dvh grid-cols-1 bg-black text-white lg:grid-cols-12">
       <section className="flex flex-col justify-center gap-8 px-4 py-8 sm:px-6 lg:col-span-3 lg:px-8 lg:py-10">
         <div>
+          <p className="mb-6 flex items-center gap-2">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-lime-400" />
+            <span className="text-xs tracking-wider text-gray-500">LATENCIA: 12ms</span>
+          </p>
           <p className="text-[11px] uppercase tracking-[0.22em] text-gray-400">Componente afectado</p>
           <h1 className="mt-6 text-5xl leading-none text-white [font-family:var(--font-playfair)] sm:text-6xl">
             {machine.machineId}
@@ -66,7 +71,7 @@ async function MachineDetail({ params }: { params: Promise<{ id: string }> }) {
         </div>
       </section>
 
-      <section className="relative h-[58dvh] min-h-[280px] w-full sm:h-[64dvh] lg:col-span-6 lg:h-[calc(100dvh-2rem)] lg:min-h-[calc(100dvh-2rem)]">
+      <section className="relative h-[58dvh] min-h-[280px] w-full sm:h-[64dvh] lg:col-span-6 lg:h-dvh lg:min-h-dvh">
         <div className="absolute inset-0">
           <MotorViewerClient
             status={toViewerStatus(machine.ai_insight.severidad)}
@@ -81,11 +86,14 @@ async function MachineDetail({ params }: { params: Promise<{ id: string }> }) {
       </section>
 
       <section className="flex flex-col justify-center gap-10 px-4 py-8 text-right sm:px-6 lg:col-span-3 lg:px-8 lg:py-10">
-        <nav className="flex justify-end gap-6 text-xs uppercase tracking-[0.16em] text-gray-400">
+        <div className="flex flex-col items-end gap-3">
+          <p className="text-[10px] tracking-widest text-gray-500 uppercase">Operador: Victoria Bueno</p>
+          <nav className="flex justify-end gap-6 text-xs uppercase tracking-[0.16em] text-gray-400">
           <span className="text-white">Estado</span>
           <Link href="/historial">Historial</Link>
           <span>Ajustes</span>
-        </nav>
+          </nav>
+        </div>
 
         <dl className="space-y-6">
           <div>
@@ -102,11 +110,21 @@ async function MachineDetail({ params }: { params: Promise<{ id: string }> }) {
             <dt className="text-[11px] uppercase tracking-[0.16em] text-gray-500">Temperatura</dt>
             <dd className="mt-1 text-3xl tabular-nums text-white">{machine.telemetry.temperature_c} °C</dd>
           </div>
+          <div>
+            <dt className="text-[11px] uppercase tracking-[0.16em] text-gray-500">Humedad</dt>
+            <dd className="mt-1 text-3xl font-light tabular-nums text-white">45 %</dd>
+          </div>
         </dl>
 
-        <blockquote className="text-sm leading-relaxed text-gray-300">
-          {machine.ai_insight.accion_inmediata}
-        </blockquote>
+        <div>
+          <blockquote className="text-sm leading-relaxed text-gray-300">
+            {machine.ai_insight.accion_inmediata}
+          </blockquote>
+          <p className="mt-4 flex items-center justify-end gap-2 text-sm text-amber-500">
+            <Clock className="h-4 w-4 shrink-0" aria-hidden />
+            Riesgo de falla crítica en: ~4.5 Horas
+          </p>
+        </div>
 
         <div>
           <button
