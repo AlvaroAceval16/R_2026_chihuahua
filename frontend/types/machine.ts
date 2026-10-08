@@ -1,3 +1,15 @@
+export type MachineStatus = "operativa" | "mantenimiento" | "averiada";
+
+/** Máquina del catálogo (se resuelve por nfc_id al escanear el chip). */
+export interface Machine {
+  id: number;
+  nfc_id: string;
+  name: string;
+  location: string | null;
+  status: MachineStatus;
+  created_at: string;
+}
+
 export interface MachineData {
   machineId: string;
   timestamp: string;
