@@ -1,67 +1,94 @@
-import mockData from "@/data/mockData.json";
-import { MachineData } from "@/types/machine";
-import Header from "@/app/components/dashboard/Header";
-import MachineIdentity from "@/app/components/dashboard/MachineIdentity";
-import DigitalTwinPanel from "@/app/components/dashboard/DigitalTwinPanel";
-import AIDiagnosis from "@/app/components/dashboard/AIDiagnosis";
-import TelemetryKPIs from "@/app/components/dashboard/TelemetryKPIs";
-import TelemetryCharts from "@/app/components/dashboard/TelemetryCharts";
-import OEESection from "@/app/components/dashboard/OEESection";
-import LeanMudas from "@/app/components/dashboard/LeanMudas";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import plant from "@/data/plant.json";
+import historial from "@/data/historial.json";
+import { HistoryEntry, PlantMachine } from "@/types/machine";
+import HistoryTable from "@/app/components/plant/HistoryTable";
+import { cardClass, oeeBarClass, severityLabel, severityText } from "@/app/components/plant/status";
+
+const machines = plant as PlantMachine[];
+const entries = historial as HistoryEntry[];
+
+const oeeKeys = [
+  { key: "availability" as const, label: "Disponibilidad" },
+  { key: "performance" as const, label: "Rendimiento" },
+  { key: "quality" as const, label: "Calidad" },
+];
+
+function plantAverage(key: (typeof oeeKeys)[number]["key"]) {
+  const total = machines.reduce((sum, machine) => sum + machine.oee[key], 0);
+  return Math.round(total / machines.length);
+}
 
 export default function Home() {
-  const machineData = mockData as MachineData;
-
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
-      {/* ── Sticky header ── */}
-      <Header lastUpdated={machineData.timestamp} />
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 px-6 pb-10">
+      <h1 className="mb-2 text-2xl font-semibold tracking-tight text-slate-900">Planta General</h1>
 
-      {/* ── Main content ── */}
-      <main className="flex-1 px-4 py-5 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-screen-xl space-y-5">
-          {/* 1 — Machine identity & status (highest priority) */}
-          <MachineIdentity data={machineData} />
-
-          {/* 2 — Digital twin + AI Diagnosis (two-column on md+) */}
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <DigitalTwinPanel
-              status={machineData.ai_insight.severidad}
-              component={machineData.ai_insight.componente_afectado}
-            />
-            <AIDiagnosis insight={machineData.ai_insight} />
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+        <section className={`${cardClass} lg:col-span-3`}>
+          <h2 className="text-sm font-medium text-slate-500">Eficiencia de planta</h2>
+          <div className="mt-6 flex flex-col gap-5">
+            {oeeKeys.map((metric) => {
+              const value = plantAverage(metric.key);
+              return (
+                <div key={metric.key}>
+                  <div className="mb-2 flex items-baseline justify-between">
+                    <p className="text-sm text-slate-600">{metric.label}</p>
+                    <p className="text-2xl font-semibold tabular-nums text-slate-900">{value}%</p>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                    <div className={`h-full rounded-full ${oeeBarClass(value)}`} style={{ width: `${value}%` }} />
+                  </div>
+                </div>
+              );
+            })}
           </div>
+        </section>
 
-          {/* 3 — Telemetry KPIs */}
-          <TelemetryKPIs telemetry={machineData.telemetry} />
-
-          {/* 4 — Telemetry charts */}
-          <TelemetryCharts telemetry={machineData.telemetry} />
-
-          {/* 5 — OEE + Lean side by side on lg+ */}
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <OEESection oee={machineData.oee} />
-            </div>
-            <div>
-              <LeanMudas lean={machineData.lean_mudas} />
-            </div>
-          </div>
+        <div className="flex flex-col gap-4 lg:col-span-2">
+          {machines.map((machine) => {
+            const severity = machine.ai_insight.severidad;
+            const critical = severity === "critico";
+            return (
+              <article
+                key={machine.machineId}
+                className={
+                  critical
+                    ? "flex items-center justify-between rounded-3xl bg-[#e4007c] px-5 py-4 text-white shadow-[0_8px_30px_rgba(228,0,124,0.25)]"
+                    : `${cardClass} flex items-center justify-between py-4`
+                }
+              >
+                <div>
+                  <h2 className={`text-base font-semibold ${critical ? "text-white" : "text-slate-900"}`}>
+                    {machine.machineId}
+                  </h2>
+                  <p className={`mt-0.5 text-sm ${critical ? "text-white/90" : severityText[severity]}`}>
+                    {severityLabel[severity]}
+                  </p>
+                </div>
+                <Link
+                  href={`/maquinas/${machine.machineId}`}
+                  className={`inline-flex items-center gap-1 text-sm ${critical ? "text-white" : "text-slate-900"}`}
+                >
+                  Ver detalles
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </article>
+            );
+          })}
         </div>
-      </main>
+      </div>
 
-      {/* ── Footer ── */}
-      <footer className="border-t border-slate-200 bg-white px-6 py-3">
-        <div className="mx-auto flex max-w-screen-xl items-center justify-between">
-          <p className="text-xs text-slate-400">
-            RetroFit AI — Sistema de monitoreo industrial
-          </p>
-          <p className="text-xs text-slate-400">
-            ID sesión: {machineData.machineId} ·{" "}
-            {new Date(machineData.timestamp).toISOString()}
-          </p>
+      <section className={cardClass}>
+        <div className="mb-2 flex items-baseline justify-between">
+          <h2 className="text-sm font-medium text-slate-500">Historial reciente</h2>
+          <Link href="/historial" className="text-sm text-slate-500">
+            Ver historial
+          </Link>
         </div>
-      </footer>
-    </div>
+        <HistoryTable entries={entries.slice(0, 3)} />
+      </section>
+    </main>
   );
 }

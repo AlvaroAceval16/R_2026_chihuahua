@@ -1,3 +1,36 @@
+export type PlantSeverity = "normal" | "advertencia" | "critico";
+
+export interface PlantMachine {
+  machineId: string;
+  telemetry: {
+    vibration_raw: number;
+    current_amp: number;
+    temperature_c: number;
+    humidity_percent: number;
+  };
+  oee: {
+    availability: number;
+    performance: number;
+    quality: number;
+  };
+  ai_insight: {
+    severidad: PlantSeverity;
+    componente_afectado: string;
+    diagnostico_tecnico: string;
+    accion_inmediata: string;
+  };
+}
+
+export type ResolutionStatus = "abierto" | "en curso" | "cerrado";
+
+export interface HistoryEntry {
+  timestamp: string;
+  machineId: string;
+  sensor: string;
+  diagnosis: string;
+  resolution: ResolutionStatus;
+}
+
 export interface MachineData {
   machineId: string;
   timestamp: string;

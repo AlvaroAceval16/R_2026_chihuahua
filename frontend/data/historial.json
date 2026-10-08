@@ -1,0 +1,30 @@
+[
+  {
+    "timestamp": "2026-10-07T20:33:00.000Z",
+    "machineId": "CNC-01",
+    "sensor": "Vibración",
+    "diagnosis": "Sobrecarga en la carcasa. Husillo fuera de umbral.",
+    "resolution": "abierto"
+  },
+  {
+    "timestamp": "2026-10-07T18:10:00.000Z",
+    "machineId": "CNC-02",
+    "sensor": "Temperatura",
+    "diagnosis": "Desbalance leve en el ventilador.",
+    "resolution": "en curso"
+  },
+  {
+    "timestamp": "2026-10-06T11:42:00.000Z",
+    "machineId": "CNC-03",
+    "sensor": "Corriente",
+    "diagnosis": "Pico breve de corriente al arranque. Volvió a rango.",
+    "resolution": "cerrado"
+  },
+  {
+    "timestamp": "2026-10-05T09:15:00.000Z",
+    "machineId": "CNC-01",
+    "sensor": "Humedad",
+    "diagnosis": "Humedad alta en el gabinete durante el turno de noche.",
+    "resolution": "cerrado"
+  }
+]

@@ -1,0 +1,62 @@
+[
+  {
+    "machineId": "CNC-01",
+    "telemetry": {
+      "vibration_raw": 850,
+      "current_amp": 18.5,
+      "temperature_c": 45.0,
+      "humidity_percent": 50.0
+    },
+    "oee": {
+      "availability": 60,
+      "performance": 75,
+      "quality": 98
+    },
+    "ai_insight": {
+      "severidad": "critico",
+      "componente_afectado": "Carcasa",
+      "diagnostico_tecnico": "Sobrecarga detectada en el husillo. La vibración supera el umbral de operación y la corriente se mantiene alta.",
+      "accion_inmediata": "Detener el husillo."
+    }
+  },
+  {
+    "machineId": "CNC-02",
+    "telemetry": {
+      "vibration_raw": 620,
+      "current_amp": 14.2,
+      "temperature_c": 61.0,
+      "humidity_percent": 47.0
+    },
+    "oee": {
+      "availability": 88,
+      "performance": 81,
+      "quality": 96
+    },
+    "ai_insight": {
+      "severidad": "advertencia",
+      "componente_afectado": "Ventilador",
+      "diagnostico_tecnico": "El ventilador muestra desbalance leve. La temperatura sube con la carga, todavía por debajo del límite crítico.",
+      "accion_inmediata": "Programar limpieza del ventilador al cierre del turno."
+    }
+  },
+  {
+    "machineId": "CNC-03",
+    "telemetry": {
+      "vibration_raw": 210,
+      "current_amp": 9.4,
+      "temperature_c": 42.0,
+      "humidity_percent": 44.0
+    },
+    "oee": {
+      "availability": 94,
+      "performance": 90,
+      "quality": 99
+    },
+    "ai_insight": {
+      "severidad": "normal",
+      "componente_afectado": "Ninguno",
+      "diagnostico_tecnico": "Los sensores se mantienen dentro de los umbrales de operación. No hay desviación que requiera intervención.",
+      "accion_inmediata": "Continuar el ciclo y registrar la lectura."
+    }
+  }
+]
