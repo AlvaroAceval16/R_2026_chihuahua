@@ -59,29 +59,40 @@ const locks = {};
 
 mqttClient.on('message', async (topic, message) => {
   try {
-    const datosHardware = JSON.parse(message.toString());
+    const rawData = message.toString();
+    const datosHardware = JSON.parse(rawData);
     
-    // Mapeo flexible de la llave primaria
     const machineId = datosHardware.maquina || datosHardware.machineId || "CNC-01";
-    
-    // BLOQUEO INDIVIDUAL: Ignorar tráfico solo si esta máquina específica está en análisis
-    if (locks[machineId]) return;
-
     const vibration = datosHardware.valor || datosHardware.vibration || 0;
     
+    // 🔥 RAYOS X 1: Imprimir cada latido para verificar qué lee Node.js
+    console.log(`[LATIDO] ${machineId} -> V: ${vibration} | Candado: ${locks[machineId] ? 'CERRADO 🔴' : 'ABIERTO 🟢'}`);
+
+    // Si la máquina actual ya se está analizando, ignoramos el mensaje
+    if (locks[machineId]) return;
+
     if (vibration >= 800) {
       // Cierre de compuerta exclusivo para esta máquina
       locks[machineId] = true;
       
-      const current = 18.5; // Corriente simulada por pico de vibración
-      const temperature = datosHardware.temperature || 45.0; // Lectura real del Arduino o fallback
-      const humidity = datosHardware.humidity || 50.0; // Lectura real del DHT11 o fallback
+      const current = 18.5; // Simulación de pico
+      const temperature = datosHardware.temperature || 45.0; 
+      const humidity = datosHardware.humidity || 50.0; 
       
-      console.log(`\n⚠️ ¡ALTO IMPACTO DETECTADO EN ${machineId} (${vibration})! Invocando IA...`);
+      console.log(`\n⚠️ ¡IMPACTO EN ${machineId} (${vibration})! Invocando IA (Ollama)...`);
+      
+      // 🔥 RAYOS X 2: Cronometrar cuánto tarda Llama 3.1 en responder
+      const startTime = Date.now();
       
       try {
         const formattedPrompt = await prompt.format({ machineId, vibration, current, temperature });
+        
+        // Invocación del modelo local
         const response = await llm.invoke(formattedPrompt);
+        
+        const tiempoRespuesta = ((Date.now() - startTime) / 1000).toFixed(2);
+        console.log(`🧠 [IA RESPONDIÓ EN ${tiempoRespuesta}s] Formateando respuesta...`);
+        
         const ai_insight = await parser.parse(response);
 
         const dashboardPayload = {
@@ -90,8 +101,8 @@ mqttClient.on('message', async (topic, message) => {
           telemetry: { 
             vibration_raw: vibration, 
             current_amp: current, 
-            temperature_c: temperature,
-            humidity_percent: humidity
+            temperature_c: temperature, 
+            humidity_percent: humidity 
           },
           oee: { 
             availability: (ai_insight.severidad === 'critico' || ai_insight.severidad === 'crítico') ? 60 : 92, 
@@ -101,26 +112,24 @@ mqttClient.on('message', async (topic, message) => {
           ai_insight
         };
 
-        // EMPUJAR DATOS AL FRONTEND AL INSTANTE
         io.emit('alerta_critica', dashboardPayload);
+        console.log(`🚀 Alerta enviada al frontend con éxito.`);
         
-        console.log(`🚀 JSON empujado al Frontend para ${machineId}. Resultado maestro:`);
-        console.log(JSON.stringify(dashboardPayload, null, 2));
-        console.log("--------------------------------------------------");
       } catch (aiError) {
-        console.error("Error en la inferencia de la IA:", aiError.message);
+        // 🔥 RAYOS X 3: Capturar si la IA escupe texto basura o si falla la red
+        console.error(`❌ Error crítico en la IA tras ${((Date.now() - startTime) / 1000).toFixed(2)}s:`, aiError.message);
       } finally {
-        // Apertura inmediata del candado de esta máquina al entregar conclusión
+        // Apertura del candado de esta máquina
         locks[machineId] = false;
-        console.log(`✅ IA terminó. Compuertas abiertas de nuevo para ${machineId}.`);
+        console.log(`✅ Candado de ${machineId} ABIERTO 🟢 de nuevo.`);
       }
     }
   } catch (error) {
-    console.error("Error procesando mensaje MQTT o IA:", error.message);
+    console.error("Error procesando JSON de MQTT:", error.message);
   }
 });
 
-// Separamos el backend en el 4000 para no chocar con Next.js (3000)
+// Arrancamos en el puerto 4000
 const PORT = 4000;
 server.listen(PORT, () => {
   console.log(`🚀 Motor RetroFit 4.0 operativo en el puerto ${PORT}`);
